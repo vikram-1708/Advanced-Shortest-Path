@@ -1,10 +1,8 @@
 #include<bits/stdc++.h>
 using namespace std;
 
-
 #define MAX 110005
 typedef  pair<long long int,long long int>pa;
-
 
 #define pb push_back
 
@@ -105,21 +103,19 @@ long long int Astar()
             f_vis[v]=true;
             f_pq.pop();
           
-            
-            
-          
-                for (auto jj:adj[v])
+            for (auto jj:adj[v])
+            {
+                long long int u=jj.second;
+                long long int edge_wt=jj.first+v_for[u]-v_for[v];
+
+                if(!f_vis[u] && f_dist[v]+edge_wt<f_dist[u])
                 {
-                    long long int u=jj.second;
-                    long long int edge_wt=jj.first+v_for[u]-v_for[v];
-                    
-                    if(!f_vis[u] && f_dist[v]+edge_wt<f_dist[u])
-                    {
-                         worksetD.insert(u);
-                        f_dist[u]=f_dist[v]+edge_wt;
-                        f_pq.push({f_dist[v]+edge_wt,u});
-                    }
+                     worksetD.insert(u);
+                    f_dist[u]=f_dist[v]+edge_wt;
+                    f_pq.push({f_dist[v]+edge_wt,u});
                 }
+            }
+            
             if(r_vis[v])
                 break;
         }
@@ -132,18 +128,19 @@ long long int Astar()
             r_pq.pop();
             r_vis[v]=true;
 
-                for (auto jj:adjr[v])
-                {
-                    long long int u=jj.second;
-                    long long int edge_wt=jj.first+v_back[u]-v_back[v];
-                   
-                    if(!r_vis[u] && r_dist[v]+edge_wt<r_dist[u])
-                    { 
-                        worksetD.insert(u);
-                        r_dist[u]=r_dist[v]+edge_wt;
-                        r_pq.push({r_dist[v]+edge_wt,u});
-                    }
+            for (auto jj:adjr[v])
+            {
+                long long int u=jj.second;
+                long long int edge_wt=jj.first+v_back[u]-v_back[v];
+
+                if(!r_vis[u] && r_dist[v]+edge_wt<r_dist[u])
+                { 
+                    worksetD.insert(u);
+                    r_dist[u]=r_dist[v]+edge_wt;
+                    r_pq.push({r_dist[v]+edge_wt,u});
                 }
+            }
+             
             if(f_vis[v])
                break;
      
@@ -154,16 +151,20 @@ long long int Astar()
     for(int i=1;i<=n;i++)
     {
         if(f_vis[i] && r_vis[i])
-        estimate=min(estimate,f_dist[i]+r_dist[i]+v_for[src]-v_for[i]+v_back[dest]-v_back[i]);
+        {
+          estimate=min(estimate,f_dist[i]+r_dist[i]+v_for[src]-v_for[i]+v_back[dest]-v_back[i]);
+        }
+        
         for(auto jj:adj[i])
         {
             if(f_vis[i] && r_vis[jj.second])
-             estimate=min(f_dist[i]+r_dist[jj.second]+jj.first+v_for[src]-v_for[i]+v_back[dest]-v_back[jj.second],estimate);
+            {
+              estimate=min(f_dist[i]+r_dist[jj.second]+jj.first+v_for[src]-v_for[i]+v_back[dest]-v_back[jj.second],estimate);
+            }       
         }
     }
 
    return estimate;
-
 }
 
 int main()
@@ -186,9 +187,9 @@ int main()
     
     long long int num_of_queries;
     cin>>num_of_queries;
+    
     while(num_of_queries--)
     {
-       
         cin>>src>>dest;
         if(src==dest)
         {
@@ -202,7 +203,8 @@ int main()
             cout<<-1<<"\n";
         }
         else
+        {
             cout<<ans<<"\n";
+        }
     }
-   
 }
