@@ -1,12 +1,9 @@
-
 //Contraction Hierarchies algorithm
 #include<bits/stdc++.h>
 using namespace std;
 
-
 #define MAX 500005
 typedef  pair<long long int,long long int> pa;
-
 
 #define pb push_back
 long long int INF=1e18;
@@ -40,20 +37,20 @@ void fastio()
 
 void dijkstra(long long int src, long long int tot_max)
 {
-//reinitialising the values changed during previous query
+    //reinitialising the values changed during previous query
     for(auto k:workset)
-   {
-   
+    {
       d_dist[k]=-1;
       hops[k]=0;
       visited[k]=false;
-   }
+    }
     workset.clear();
     d_dist[src] = 0;
     visited[src]=true;
     priority_queue<pa,vector<pa>,greater<pa>>d_pq;
     d_pq.push({0,src});
     workset.insert(src);
+    
     while(!d_pq.empty())
     {
         long long int v = d_pq.top().second; 
@@ -62,13 +59,19 @@ void dijkstra(long long int src, long long int tot_max)
         visited[v]=true;
         
         if(d_dist[v] > tot_max)    // break because no witness path after that
-              return;
+        {
+            return;
+        }
         if(hops[v] > 20)          //don't find after a certain number of hops
+        {
             continue;
-       for (auto jj:adj[v])
+        }
+        for (auto jj:adj[v])
         {
             if(contracted[jj.second] || visited[jj.second])
-                    continue;
+            {
+                continue;
+            }
            
             if( (d_dist[jj.second] > d_dist[v] + jj.first) || d_dist[jj.second]==-1)
             {
@@ -101,21 +104,24 @@ void contract(long long int v)
          in_max=max(in_max,jj.first);
      }
     
-  
-    long long int tot_max=in_max+out_max;
+     long long int tot_max=in_max+out_max;
     
-    for(auto jj:adjr[v])
-    {
+     for(auto jj:adjr[v])
+     {
         if(contracted[jj.second])
-             continue;
+        {
+           continue;
+        }
              
         //dijkstra for finding witness path criteria
-          dijkstra(jj.second, tot_max);
+        dijkstra(jj.second, tot_max);
         
         for(auto kk:adj[v])
         {
             if(contracted[kk.second])
-                   continue;
+            {
+               continue;
+            }
             
             long long int cost = jj.first+kk.first;
             
@@ -126,16 +132,11 @@ void contract(long long int v)
             }
         }
     }
-   
 }
-
-
-
 
 //preprocessing part
 void preprocessing()
 {
-  
     //computing the importance function for each node
     for(int i=1;i<=n;i++)
     {   worksetD.insert(i);
@@ -145,26 +146,28 @@ void preprocessing()
         imp_pq.push({imp,i});
      }
     
-    long long int ord=1;
-    while(!imp_pq.empty())
-    {
+     long long int ord=1;
+     while(!imp_pq.empty())
+     {
         long long int a=imp_pq.top().first;
         long long int b=imp_pq.top().second;
         imp_pq.pop();
+     
         if(!imp_pq.empty())
         {
             long long int a1=imp_pq.top().first;
             long long new_val=14*((adj[b].size()*adjr[b].size())-adj[b].size()-adjr[b].size())+25*(adj[b].size()+adjr[b].size()); 
             new_val=new_val+20*delNeighbors[b]+50*Level[b];
+            
             if(new_val>a1)
-           {
+            {
                 imp_pq.push({new_val,b});
                 continue;
-           }
+            }
         }
         order[b]=ord++;
         contract(b);
-    }
+     }
 }
 
 //bidirectional dijkstra for faster output
@@ -174,6 +177,7 @@ long long int bidijkstra()
     priority_queue<pa,vector<pa>,greater<pa>>r_pq; //priority queue for reversed graph
     long long int minf;
     long long int minr;
+    
     //reinitialising the values changed during previous query
     for(auto k:worksetD)
     {
@@ -193,10 +197,10 @@ long long int bidijkstra()
     r_dist[dest]=0;
     worksetD.insert(src);
     worksetD.insert(dest);
+    
     // bidijisktra with alternate forward and backward step 
     while(!f_pq.empty() || !r_pq.empty())
     {
-       
         //forward_iteration
         if(!f_pq.empty())
         {
@@ -204,64 +208,54 @@ long long int bidijkstra()
             long long int v=f_pq.top().second;
             f_vis[v]=true;
             f_pq.pop();
-            if(f_dist[v]>=estimate )
-                 continue;
-          
-                for (auto jj:adj[v])
+            if(f_dist[v] >= estimate)
+            {
+               continue;
+            }
+            for (auto jj:adj[v])
+            {
+                long long int edge_wt=jj.first;
+                long long int u=jj.second;
+                estimate=min(estimate,f_dist[v]+r_dist[u]+edge_wt);
+
+                if(!f_vis[u] && f_dist[v]+edge_wt<f_dist[u] && order[u]>order[v] )
                 {
-                    long long int edge_wt=jj.first;
-                    long long int u=jj.second;
-                    estimate=min(estimate,f_dist[v]+r_dist[u]+edge_wt);
-                     
-                    if(!f_vis[u] && f_dist[v]+edge_wt<f_dist[u] && order[u]>order[v] )
-                    {
-                         worksetD.insert(u);
-                         f_dist[u]=f_dist[v]+edge_wt;
-                         f_pq.push({f_dist[u],u});
-                    }
+                     worksetD.insert(u);
+                     f_dist[u]=f_dist[v]+edge_wt;
+                     f_pq.push({f_dist[u],u});
                 }
-                estimate=min(estimate,f_dist[v]+r_dist[v]);
-        
-      
-        
+            }
+            estimate=min(estimate,f_dist[v]+r_dist[v]);
         }
         //backward_iteration
-         if(!r_pq.empty())
+        if(!r_pq.empty())
         {
             long long int wt=r_pq.top().first;
             long long int v=r_pq.top().second;
             r_pq.pop();
             r_vis[v]=true;
-            if(r_dist[v]>=estimate)
+            if(r_dist[v] >= estimate)
+            {   
                   continue;
-            
-                for (auto jj:adjr[v])
+            }
+            for (auto jj:adjr[v])
+            {
+                long long int edge_wt=jj.first;
+                long long int u=jj.second;
+                estimate=min(estimate,r_dist[v]+f_dist[u]+edge_wt);
+
+                if(!r_vis[u] && r_dist[v]+edge_wt<r_dist[u] && order[u]>order[v])
                 {
-                    long long int edge_wt=jj.first;
-                    long long int u=jj.second;
-                    estimate=min(estimate,r_dist[v]+f_dist[u]+edge_wt);
-                    
-                    if(!r_vis[u] && r_dist[v]+edge_wt<r_dist[u] && order[u]>order[v])
-                    {
-                        worksetD.insert(u);
-                        r_dist[u]=r_dist[v]+edge_wt;
-                        r_pq.push({r_dist[u],u});
-                    }
+                    worksetD.insert(u);
+                    r_dist[u]=r_dist[v]+edge_wt;
+                    r_pq.push({r_dist[u],u});
                 }
-                estimate=min(estimate,f_dist[v]+r_dist[v]);
-            
-             
-           
+            }
+            estimate=min(estimate,f_dist[v]+r_dist[v]);
         }
-       
-       
-       
     }
-  
-    
     
    return estimate;
-
 }
 
 int main()
@@ -275,13 +269,12 @@ int main()
         adj[x].pb({wt,y});    //adding edge to the graph
         adjr[y].pb({wt,x});  //adding edge to the reversed Graph
     }
-     preprocessing();
+    preprocessing();
     cout<<"Ready"<<endl;
     long long int num_of_queries;
     cin>>num_of_queries;
     while(num_of_queries--)
     {
-       
         cin>>src>>dest;
         if(src==dest)
         {
@@ -295,7 +288,8 @@ int main()
             cout<<-1<<"\n";
         }
         else
+        {
             cout<<ans<<"\n";
+        }
     }
-   
 }
