@@ -1,12 +1,9 @@
-
 //Contraction Hierarchies algorithm
 #include<bits/stdc++.h>
 using namespace std;
 
-
 #define MAX 110005
 typedef  pair<long long int,long long int> pa;
-
 
 #define pb push_back
 long long int INF=1e18;
@@ -43,33 +40,44 @@ void dijkstra(long long int src, long long int tot_max)
 {
    //reinitialising the values changed during previous query
     for(auto k:workset)
-   {
+    {
    
       d_dist[k]=-1;
       hops[k]=0;
       visited[k]=false;
-   }
+    }
+    
     workset.clear();
     d_dist[src] = 0;
     visited[src]=true;
     priority_queue<pa,vector<pa>,greater<pa>>d_pq;
     d_pq.push({0,src});
     workset.insert(src);
+    
     while(!d_pq.empty())
     {
         long long int v = d_pq.top().second; 
         long long int w = d_pq.top().first; 
         d_pq.pop();
         visited[v]=true;
+        
         if(d_dist[v] > tot_max)   // break because no witness path after that
-              return;
+        {
+          return;
+        }
+        
         if(hops[v] > 5)    //if hops more, not traversing
-            continue;
+        {  
+          continue;
+        }
+        
        for (auto jj:adj[v])
         {
             if(contracted[jj.second] || visited[jj.second])
-                     continue;
-           
+            {         
+              continue;
+            }
+        
             if( (d_dist[jj.second] > d_dist[v] + jj.first) || d_dist[jj.second]==-1)
             {
                 workset.insert(jj.second);
@@ -99,21 +107,24 @@ void contract(long long int v)
          delNeighbors[jj.second]++;
          in_max=max(in_max,jj.first);
      }
-    
   
     long long int tot_max=in_max+out_max;
     
     for(auto jj:adjr[v])
     {
         if(contracted[jj.second])
-               continue;
-         //dijkstra for finding witness path criteria
-         dijkstra(jj.second, tot_max);
-        
+        {
+           continue;
+        }
+        //dijkstra for finding witness path criteria
+        dijkstra(jj.second, tot_max);
+
         for(auto kk:adj[v])
         {
             if(contracted[kk.second])
+            {
                    continue;
+            }
             
             long long int cost = jj.first+kk.first;
             
@@ -127,9 +138,6 @@ void contract(long long int v)
    
 }
 
-
-
-
 //preprocessing part
 void preprocessing()
 {  
@@ -142,12 +150,13 @@ void preprocessing()
         imp_pq.push({imp,i});
      }
     
-    long long int ord=1;
-    while(!imp_pq.empty())
-    {
+     long long int ord=1;
+     while(!imp_pq.empty())
+     {
         long long int a=imp_pq.top().first;
         long long int b=imp_pq.top().second;
         imp_pq.pop();
+         
         if(!imp_pq.empty())
         {
             long long int a1=imp_pq.top().first;
@@ -161,7 +170,7 @@ void preprocessing()
         }
         order[b]=ord++;
         contract(b);
-    }
+     }
 }
 
 //bidirectional dijkstra for faster output
@@ -189,6 +198,7 @@ long long int bidijkstra()
     r_dist[dest]=0;
     worksetD.insert(src);
     worksetD.insert(dest);
+    
     // bidijisktra with alternate forward and backward step 
     while(!f_pq.empty() || !r_pq.empty())
     {
@@ -199,7 +209,6 @@ long long int bidijkstra()
             long long int v=f_pq.top().second;
             f_vis[v]=true;
             f_pq.pop();
-          
           
             if(f_dist[v]<=estimate)
             {
@@ -216,10 +225,9 @@ long long int bidijkstra()
                     }
                 }
                 estimate=min(estimate,f_dist[v]+r_dist[v]);
+            }
         }
-        
-        
-        }
+       
         //backward_iteration
          if(!r_pq.empty())
         {
@@ -230,7 +238,6 @@ long long int bidijkstra()
                          
              if(r_dist[v]<=estimate)
              {
-            
                 for (auto jj:adjr[v])
                 {
                     long long int edge_wt=jj.first;
@@ -244,15 +251,11 @@ long long int bidijkstra()
                     }
                 }
                 estimate=min(estimate,f_dist[v]+r_dist[v]);
-            
              }
         }
-       
-       
     }
-    
-   return estimate;
 
+    return estimate;
 }
 
 int main()
@@ -268,7 +271,6 @@ int main()
     }
     
     preprocessing();
-    cout<<"Ready"<<endl;
     
     long long int num_of_queries;
     cin>>num_of_queries;
