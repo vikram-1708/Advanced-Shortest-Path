@@ -1,10 +1,8 @@
 #include<bits/stdc++.h>
 using namespace std;
 
-
 #define MAX 1000005
 typedef  pair<long long int,long long int> pa;
-
 
 #define pb push_back
 long long int INF=1e18;
@@ -35,7 +33,7 @@ long long int bidijkstra()
     priority_queue<pa,vector<pa>,greater<pa>>r_pq; //priority queue for reversed graph
     
     //updating all the values changed during previous query
-   for(auto k:worksetD)
+    for(auto k:worksetD)
     {
         f_dist[k]=INF;
         r_dist[k]=INF;
@@ -68,23 +66,19 @@ long long int bidijkstra()
           
             minf=wt;
             
-          
-                for (auto jj:adj[v])
+            for (auto jj:adj[v])
+            {
+                long long int edge_wt=jj.first;
+                long long int u=jj.second;
+                if(!f_vis[u] && f_dist[v]+edge_wt<f_dist[u])
                 {
-                    long long int edge_wt=jj.first;
-                    long long int u=jj.second;
-                    if(!f_vis[u] && f_dist[v]+edge_wt<f_dist[u])
-                    {
-                        worksetD.insert(u);
-                        f_dist[u]=f_dist[v]+edge_wt;
-                        estimate=min(estimate,f_dist[v]+r_dist[u]+edge_wt);
-                        f_pq.push({f_dist[u],u});
-                    }
+                    worksetD.insert(u);
+                    f_dist[u]=f_dist[v]+edge_wt;
+                    estimate=min(estimate,f_dist[v]+r_dist[u]+edge_wt);
+                    f_pq.push({f_dist[u],u});
                 }
-           
+            }
             
-        
-        
         }
         //backward_iteration
         
@@ -96,30 +90,27 @@ long long int bidijkstra()
             r_vis[v]=true;
             minr=wt;             
             
-                for (auto jj:adjr[v])
+            for (auto jj:adjr[v])
+            {
+                long long int edge_wt=jj.first;
+                long long int u=jj.second;
+
+                if(!r_vis[u] && r_dist[v]+edge_wt<r_dist[u])
                 {
-                    long long int edge_wt=jj.first;
-                    long long int u=jj.second;
-                    
-                    if(!r_vis[u] && r_dist[v]+edge_wt<r_dist[u])
-                    {
-                        worksetD.insert(u);
-                        r_dist[u]=r_dist[v]+edge_wt;
-                        estimate=min(estimate,r_dist[v]+f_dist[u]+edge_wt);
-                        r_pq.push({r_dist[u],u});
-                    }
+                    worksetD.insert(u);
+                    r_dist[u]=r_dist[v]+edge_wt;
+                    estimate=min(estimate,r_dist[v]+f_dist[u]+edge_wt);
+                    r_pq.push({r_dist[u],u});
                 }
-          
-            
-           
+            }
         }
+        
        //stopping condition
         if(minf+minr>=estimate)
            break;
     }
     
    return estimate;
-
 }
 
 int main()
@@ -131,6 +122,7 @@ int main()
     {
         worksetD.insert(i);
     }
+    
     for(int i=0;i<m;i++)
     {
         cin>>x>>y>>wt;
@@ -140,15 +132,16 @@ int main()
     
     long long int num_of_queries;
     cin>>num_of_queries;
+    
     while(num_of_queries--)
     {
-       
         cin>>src>>dest;
         if(src==dest)
         {
             cout<<0<<"\n";
             continue;
         }
+        
         long long int ans=bidijkstra();
         
         if(ans==INF)
@@ -156,7 +149,9 @@ int main()
             cout<<-1<<"\n";
         }
         else
+        {
             cout<<ans<<"\n";
+        }
     }
    
 }
