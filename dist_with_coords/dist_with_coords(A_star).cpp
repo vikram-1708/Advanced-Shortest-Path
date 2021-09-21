@@ -1,10 +1,8 @@
 #include<bits/stdc++.h>
 using namespace std;
 
-
 #define MAX 110005
 typedef  pair<long long int,long long int>pa;
-
 
 #define pb push_back
 
@@ -27,22 +25,17 @@ void fastio()
     cout.tie(NULL);
 }
 
-
-//cmputing virtual function for each node
+//computing virtual function for each node
 void computing_virtual_function()
 {
     for(int i=1;i<=n;i++)
     {
-    
            unsigned long long cc=(((location[dest].first-location[i].first))*((location[dest].first-location[i].first)))+
-                 (((location[dest].second-location[i].second))*((location[dest].second-location[i].second)));
+           (((location[dest].second-location[i].second))*((location[dest].second-location[i].second)));
+           
            v_for[i]=sqrt(cc);
-       
     }
 }
-
-
-
 
 //Astar for faster output
 long long int Astar()
@@ -75,24 +68,21 @@ long long int Astar()
                  return f_dist[dest]+v_for[src];
             }
             
-          
-                for (auto jj:adj[v])
-                {
-                    long long int u=jj.second;
-                    long long int edge_wt=jj.first+v_for[u]-v_for[v];
-                    
-                    if(!f_vis[u] && f_dist[v]+edge_wt<f_dist[u])
-                    {
-                       
-                        f_dist[u]=f_dist[v]+edge_wt;
-                        f_pq.push({f_dist[v]+edge_wt,u});
-                    }
-                }
+            for (auto jj:adj[v])
+            {
+                long long int u=jj.second;
+                long long int edge_wt=jj.first+v_for[u]-v_for[v];
 
+                if(!f_vis[u] && f_dist[v]+edge_wt<f_dist[u])
+                {
+                    f_dist[u]=f_dist[v]+edge_wt;
+                    f_pq.push({f_dist[u],u});
+                }
+            }
+        
     }
   
-     return -1;  
-
+    return -1;  
 }
 
 int main()
@@ -104,8 +94,8 @@ int main()
     {
          cin>>x>>y;
          location[i]={x,y};
-         
     }
+    
     for(int i=0;i<m;i++)
     {
         cin>>x>>y>>wt;
@@ -115,18 +105,20 @@ int main()
     
     long long int num_of_queries;
     cin>>num_of_queries;
+    
     while(num_of_queries--)
     {
-       
         cin>>src>>dest;
+        
         if(src==dest)
         {
             cout<<0<<"\n";
             continue;
         }
+        
         long long int ans=Astar();
 
-            cout<<ans<<"\n";
+        cout<<ans<<"\n";
     }
    
 }
